@@ -17,7 +17,7 @@ const register = async (req, res) => {
         .json({ msg: "User with this email or mobile already exists" });
     }
     const hashedPassword = bcrypt.hashSync(password, bcryptSalt);
-    const newUser = await User.create({
+    const newUser = await Client.create({
       name,
       mobile,
       email,
@@ -40,13 +40,13 @@ const login = async (req, res) => {
       .json({ error: "Credential and password are required" });
   }
   try {
-    const user = await User.findOne({
+    const user = await Client.findOne({
       $or: [{ email: credential }, { mobile: credential }],
     });
     if (!user) {
       return res.status(401).json({ error: "Invalid credential or password" });
     }
-    if( bcrypt.compareSync( password, user.password)){
+    if( bcrypt.compareSync( password, Client.password)){
       const token = jwt.sign({ userId: user._id, credential }, jwtSecret, {});
       res.cookie('token', token, { sameSite: 'none', secure: true });
       res.status(201).json({id: user._id,});
